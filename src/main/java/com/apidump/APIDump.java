@@ -7,6 +7,10 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Gist;
@@ -19,6 +23,9 @@ import org.eclipse.egit.github.core.service.EventService;
 import org.eclipse.egit.github.core.service.GistService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.egit.github.core.service.UserService;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 import com.apidump.models.Repositories;
 
@@ -28,7 +35,10 @@ import com.apidump.models.Repositories;
 //TODO: change db to postgres and see if breaks
 //TODO: deploy to heroku and see what breaks
 
-public class APIDump {
+public class APIDump extends HttpServlet {
+
+	private static final long serialVersionUID = -8090330511782086752L;
+	
 	private static final String PERSISTENCE_UNIT_NAME = "apidump";
 	private static EntityManagerFactory factory;
 	
@@ -74,7 +84,8 @@ public class APIDump {
 	private static List<Repository> populateRepositoryList() throws IOException {
 		List<Repository> repoList = new ArrayList<Repository>();
 		RepositoryService rs = new RepositoryService();
-		repoList.add(rs.getRepository("mootools", "mootools-core"));
+		//repoList.add(rs.getRepository("mootools", "mootools-core"));
+		repoList.add(rs.getRepository("jtsay", "KuruKuru"));
 		return repoList;
 	}
 	
@@ -85,7 +96,7 @@ public class APIDump {
 		return commentList;
 	}
 	
-	public static void main(String[] args) throws IOException {
+	private static void runDump() throws IOException {
 		factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		EntityManager em = factory.createEntityManager();
 		
@@ -141,5 +152,23 @@ public class APIDump {
 		//System.out.println("flushing to database");
 
 		em.close();
+	}
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		runDump();
+		resp.getWriter().print("API Dump complete\n");
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Server server = new Server(Integer.valueOf(System.getenv("PORT")));
+		ServletContextHandler context = new ServletContextHandler(
+				ServletContextHandler.SESSIONS);
+		context.setContextPath("/");
+		server.setHandler(context);
+		context.addServlet(new ServletHolder(new APIDump()), "/*");
+		server.start();
+		server.join();
 	}
 }

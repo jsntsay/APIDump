@@ -26,9 +26,10 @@
 		<class>com.apidump.models.payloads.PushPayloads</class>
 		<class>com.apidump.models.payloads.WatchPayloads</class>
 		<properties>
-			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+			<!-- property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" / -->
+			<property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
 			<property name="javax.persistence.jdbc.url" 
-				value="jdbc:mysql://localhost/datadump" />
+				value="jdbc:postgresql://localhost/datadump" />
 			<property name="javax.persistence.jdbc.user" value="user" />
 			<property name="javax.persistence.jdbc.password" value="user" />
 
