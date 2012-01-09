@@ -19,7 +19,6 @@
 		<postgre-connector-version>9.1-901.jdbc4</postgre-connector-version>
 		<log4j-version>1.2.16</log4j-version>
 		<jetty-version>8.0.4.v20111024</jetty-version>
-		<egit-site>http://download.eclipse.org/egit/updates-nightly</egit-site>
 	</properties>
 
 	<repositories>
@@ -31,13 +30,10 @@
 			</snapshots>
 		</repository>
 		<repository>
-			<id>egit</id>
-			<layout>p2</layout>
-			<url>${egit-site}</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
+	        <id>project.local</id>
+	        <name>project</name>
+	        <url>file:${project.basedir}/repo</url>
+    	</repository>
 	</repositories>
 
 	<dependencies>
