@@ -101,7 +101,7 @@
 							<assembleDirectory>target</assembleDirectory>
 							<programs>
 								<program>
-									<mainClass>com.apidump.APIDump</mainClass>
+									<mainClass>com.apidump.APIDumpServlet</mainClass>
 									<name>webapp</name>
 								</program>
 							</programs>
