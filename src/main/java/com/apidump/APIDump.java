@@ -97,8 +97,8 @@ public class APIDump extends HttpServlet {
 	private static List<Repository> populateRepositoryList() throws IOException {
 		List<Repository> repoList = new ArrayList<Repository>();
 		RepositoryService rs = new RepositoryService();
-		repoList.add(rs.getRepository("mootools", "mootools-core"));
-		//repoList.add(rs.getRepository("jtsay", "KuruKuru"));
+		//repoList.add(rs.getRepository("mootools", "mootools-core"));
+		repoList.add(rs.getRepository("octocat", "hello-world"));
 		return repoList;
 	}
 	
@@ -183,6 +183,8 @@ public class APIDump extends HttpServlet {
 		//System.out.println("flushing to database");
 
 		em.close();
+		
+		System.out.println("API Dump complete");
 	}
 	
 	@Override
