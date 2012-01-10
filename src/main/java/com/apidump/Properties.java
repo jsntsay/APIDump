@@ -1,6 +1,6 @@
 package com.apidump;
 
-import static org.eclipse.persistence.config.PersistenceUnitProperties.DDL_DATABASE_GENERATION;
+import static org.eclipse.persistence.config.PersistenceUnitProperties.DDL_GENERATION;
 import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_DRIVER;
 import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_PASSWORD;
 import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_URL;
@@ -33,7 +33,7 @@ public class Properties {
 	    properties.put(JDBC_USER, dbUrl.getUserInfo().split(":")[0]);
 	    properties.put(JDBC_PASSWORD, dbUrl.getUserInfo().split(":")[1]);
 	    
-	    properties.put(DDL_DATABASE_GENERATION, "drop-and-create-tables");
+	    properties.put(DDL_GENERATION, "drop-and-create-tables");
 	    properties.put(TARGET_SERVER, TargetServer.None);
 	    return properties;
 	}
