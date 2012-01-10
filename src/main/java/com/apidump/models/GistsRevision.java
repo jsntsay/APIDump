@@ -14,7 +14,8 @@ import javax.persistence.TemporalType;
 import org.eclipse.egit.github.core.GistChangeStatus;
 import org.eclipse.egit.github.core.GistRevision;
 import org.eclipse.egit.github.core.client.RequestException;
-import org.eclipse.egit.github.core.service.UserService;
+
+import com.apidump.generator.UsersGenerator;
 
 @Entity
 public class GistsRevision {
@@ -39,14 +40,12 @@ public class GistsRevision {
 	private int total;
 	
 	public GistsRevision(GistRevision g) throws IOException, RequestException {
-		UserService us = new UserService();
-		
 		version = g.getVersion();
 		committedAt = g.getCommittedAt();
 		url = g.getUrl();
 		
 		if (g.getUser() != null)
-			user = new Users(us.getUser(g.getUser().getLogin()));
+			user = UsersGenerator.getInstance().getUsers(g.getUser().getLogin());
 		
 		GistChangeStatus status = g.getChangeStatus();
 		if (status != null) {

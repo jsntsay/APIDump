@@ -60,9 +60,8 @@ public class Milestones {
 		state = m.getState();
 		title = m.getTitle();
 		
-		if (m.getCreator() != null) {
+		if (m.getCreator() != null)
 			creator = UsersGenerator.getInstance().getUsers(m.getCreator().getLogin());
-		}
 	}
 	
 	public Milestones() {

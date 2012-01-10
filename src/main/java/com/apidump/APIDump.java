@@ -45,8 +45,6 @@ import com.apidump.models.Repositories;
 //TODO: implement workers/producer&consumer system
 //TODO: api rate limiting and retry on 403
 //TODO: logging (log4j)
-//TODO: change db to postgres and see if breaks
-//TODO: deploy to heroku and see what breaks
 
 public class APIDump extends HttpServlet {
 
