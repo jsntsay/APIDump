@@ -4,12 +4,11 @@
 	version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
 	<persistence-unit name="apidump" transaction-type="RESOURCE_LOCAL">
 		<class>com.apidump.models.Users</class>
-		<class>com.apidump.models.Events</class>
 		<class>com.apidump.models.Repositories</class>
 		<class>com.apidump.models.Comments</class>
 		<class>com.apidump.models.CommitComments</class>
+		<class>com.apidump.models.CommitFiles</class>
 		<class>com.apidump.models.Commits</class>
-		<class>com.apidump.models.Downloads</class>
 		<class>com.apidump.models.Gists</class>
 		<class>com.apidump.models.GistsFile</class>
 		<class>com.apidump.models.GistsRevision</class>
@@ -18,13 +17,8 @@
 		<class>com.apidump.models.Milestones</class>
 		<class>com.apidump.models.PullRequestMarkers</class>
 		<class>com.apidump.models.PullRequests</class>
-		<class>com.apidump.models.payloads.EventPayloads</class>
-		<class>com.apidump.models.payloads.CommitCommentPayloads</class>
-		<class>com.apidump.models.payloads.CreatePayloads</class>
-		<class>com.apidump.models.payloads.DeletePayloads</class>
-		<class>com.apidump.models.payloads.GistPayloads</class>
-		<class>com.apidump.models.payloads.PushPayloads</class>
-		<class>com.apidump.models.payloads.WatchPayloads</class>
+		<class>com.apidump.models.RepositoryCommits</class>
+		<class>com.apidump.models.Trees</class>
 		<properties>
 			<!-- property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" / -->
 			<property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />

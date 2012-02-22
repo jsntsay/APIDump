@@ -7,6 +7,7 @@ import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_URL;
 import static org.eclipse.persistence.config.PersistenceUnitProperties.JDBC_USER;
 import static org.eclipse.persistence.config.PersistenceUnitProperties.TARGET_SERVER;
 import static org.eclipse.persistence.config.PersistenceUnitProperties.TRANSACTION_TYPE;
+import static org.eclipse.persistence.config.PersistenceUnitProperties.DROP_AND_CREATE;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class Properties {
 	    properties.put(JDBC_USER, dbUrl.getUserInfo().split(":")[0]);
 	    properties.put(JDBC_PASSWORD, dbUrl.getUserInfo().split(":")[1]);
 	    
-	    properties.put(DDL_GENERATION, "drop-and-create-tables");
+	    properties.put(DDL_GENERATION, DROP_AND_CREATE);
 	    properties.put(TARGET_SERVER, TargetServer.None);
 	    return properties;
 	}

@@ -394,7 +394,7 @@ public class Issues {
 	
 	// Meant for html_url field in Issue
 	private List<Comment> getCommentList(String url) throws IOException {
-		List<String> fields = UrlUtil.parseUrl(url, "issues");
+		List<String> fields = UrlUtil.parseUrl(url);
 		
 		if (fields == null)
 			return null;

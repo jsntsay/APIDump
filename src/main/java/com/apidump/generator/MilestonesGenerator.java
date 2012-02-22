@@ -10,6 +10,7 @@ import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.RequestException;
 import org.eclipse.egit.github.core.service.MilestoneService;
 
+import com.apidump.APIDump;
 import com.apidump.models.Milestones;
 import com.apidump.util.UrlUtil;
 
@@ -30,11 +31,16 @@ public class MilestonesGenerator {
 
 	private ConcurrentHashMap<String, Milestones> cache = new ConcurrentHashMap<String, Milestones>();
 	
-	private MilestoneService service = new MilestoneService();
+	private MilestoneService service = new MilestoneService(APIDump.getClient());
 	
 	// This is meant for html_url field from pull requests.
 	public Milestones getMilestones(String url) throws RequestException, IOException {
-		List<String> fields = UrlUtil.parseUrl(url, "milestones");
+		if (url == null)
+			return null;
+		if (cache.containsKey(url))
+			return cache.get(url);
+		
+		List<String> fields = UrlUtil.parseUrl(url);
 		
 		if (fields == null)
 			return null;

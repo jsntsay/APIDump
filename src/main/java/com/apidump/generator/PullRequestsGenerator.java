@@ -10,6 +10,7 @@ import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.RequestException;
 import org.eclipse.egit.github.core.service.PullRequestService;
 
+import com.apidump.APIDump;
 import com.apidump.models.PullRequests;
 import com.apidump.util.UrlUtil;
 
@@ -30,7 +31,7 @@ public class PullRequestsGenerator {
 
 	private ConcurrentHashMap<String, PullRequests> cache = new ConcurrentHashMap<String, PullRequests>();
 	
-	private PullRequestService service = new PullRequestService();
+	private PullRequestService service = new PullRequestService(APIDump.getClient());
 	
 	public PullRequests getPullRequests(IRepositoryIdProvider repository, int id) throws RequestException, IOException {
 		if (repository == null)
@@ -40,7 +41,7 @@ public class PullRequestsGenerator {
 		if (cache.containsKey(key))
 			return cache.get(key);
 		
-		System.out.println("pull request: " + key);
+		//System.out.println("pull request: " + key);
 		
 		PullRequests pull = getPullsFromService(repository, id);
 			
@@ -50,7 +51,7 @@ public class PullRequestsGenerator {
 	
 	// This is meant for html_url field from pull requests.
 	public PullRequests getPullRequests(String url) throws RequestException, IOException {
-		List<String> fields = UrlUtil.parseUrl(url, "pull");
+		List<String> fields = UrlUtil.parseUrl(url);
 		
 		if (fields == null)
 			return null;

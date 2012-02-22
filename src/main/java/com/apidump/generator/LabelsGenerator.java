@@ -32,7 +32,7 @@ public class LabelsGenerator {
 		if (cache.containsKey(url))
 			return cache.get(url);
 		
-		System.out.println("label: " + url);
+		//System.out.println("label: " + url);
 		
 		Labels l = new Labels(label);
 		cache.put(url, l);

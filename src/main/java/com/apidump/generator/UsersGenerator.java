@@ -7,6 +7,7 @@ import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.RequestException;
 import org.eclipse.egit.github.core.service.UserService;
 
+import com.apidump.APIDump;
 import com.apidump.models.Users;
 
 /**
@@ -16,7 +17,7 @@ public class UsersGenerator {
 	
    private static UsersGenerator instance = null;
    
-   private static UserService service = new UserService();
+   private static UserService service = new UserService(APIDump.getClient());
    
    protected UsersGenerator() {
 

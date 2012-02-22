@@ -21,7 +21,7 @@ public class APIDumpServlet extends HttpServlet {
 		APIDump.runDump();
 		resp.getWriter().print("API Dump complete\n");
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		Server server = new Server(Integer.valueOf(System.getenv("PORT")));
 		ServletContextHandler context = new ServletContextHandler(

@@ -8,6 +8,7 @@ import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.RequestException;
 import org.eclipse.egit.github.core.service.RepositoryService;
 
+import com.apidump.APIDump;
 import com.apidump.models.Repositories;
 
 /**
@@ -30,7 +31,7 @@ public class RepositoriesGenerator {
 	
 	private ConcurrentHashMap<RepositoryId, Repositories> cache = new ConcurrentHashMap<RepositoryId, Repositories>();
 	
-	private RepositoryService service = new RepositoryService();
+	private RepositoryService service = new RepositoryService(APIDump.getClient());
 	
 	public Repositories getRepositories(RepositoryId id) throws RequestException, IOException {
 		if (id == null)
@@ -39,7 +40,7 @@ public class RepositoriesGenerator {
 			return cache.get(id);
 		}
 		
-		System.out.println("repos: " + id);
+		//System.out.println("repos: " + id);
 
 		Repositories repos = getReposFromService(id);
 		// Assumes that even if the thing is replaced, it'll be with the same/equilavent model from the API

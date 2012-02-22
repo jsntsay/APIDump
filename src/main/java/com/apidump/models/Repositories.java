@@ -32,6 +32,7 @@ import org.eclipse.egit.github.core.service.PullRequestService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.egit.github.core.service.WatcherService;
 
+import com.apidump.generator.CommitsGenerator;
 import com.apidump.generator.PullRequestsGenerator;
 import com.apidump.generator.RepositoriesGenerator;
 import com.apidump.generator.UsersGenerator;
@@ -120,6 +121,10 @@ public class Repositories {
 	// Added issues to this model
 	@OneToMany
 	private List<Issues> issues;
+	
+	// Added commits to this model
+	@OneToMany
+	private List<RepositoryCommits> commits;
 	
 	public Repositories(Repository r) throws IOException, RequestException {
 		id = r.getId();
@@ -223,6 +228,8 @@ public class Repositories {
 				issues.add(new Issues(issue));
 			}
 		}
+		
+		commits = CommitsGenerator.getInstance().getAllRepositoryCommits(repoId);
 	}
 	
 	public Repositories() {
