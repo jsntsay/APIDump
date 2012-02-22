@@ -1,11 +1,8 @@
 package com.apidump.models;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -20,19 +17,12 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
-import org.eclipse.egit.github.core.Issue;
-import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryId;
-import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.RequestException;
-import org.eclipse.egit.github.core.service.CollaboratorService;
-import org.eclipse.egit.github.core.service.IssueService;
-import org.eclipse.egit.github.core.service.PullRequestService;
-import org.eclipse.egit.github.core.service.RepositoryService;
-import org.eclipse.egit.github.core.service.WatcherService;
 
 import com.apidump.generator.CommitsGenerator;
+import com.apidump.generator.IssuesGenerator;
 import com.apidump.generator.PullRequestsGenerator;
 import com.apidump.generator.RepositoriesGenerator;
 import com.apidump.generator.UsersGenerator;
@@ -112,6 +102,9 @@ public class Repositories {
 	private List<Integer> collaboratorList;
 	
 	@ElementCollection
+	private List<Integer> contributorList;
+	
+	@ElementCollection
 	private List<Long> forkList;
 
 	// Added pull requests to this model
@@ -166,68 +159,31 @@ public class Repositories {
 		if (sRepo != null && sRepo.getOwner() != null)
 			source = RepositoriesGenerator.getInstance().getRepositories(sRepo.generateId());
 		
-		RepositoryService rs = new RepositoryService();
-		CollaboratorService cs = new CollaboratorService();
-		WatcherService ws = new WatcherService();
-		PullRequestService prs = new PullRequestService();
-		IssueService is = new IssueService();
-		
 		IRepositoryIdProvider repoId = RepositoryId.createFromId(r.generateId());
 		
-		List<User> watchers = ws.getWatchers(repoId);
-		if (watchers != null) {
-			watcherList = new ArrayList<Integer>();
-			for (User u : watchers) {
-				watcherList.add(u.getId());
-			}
-		}
+		List<Integer> watchers = RepositoriesGenerator.getInstance().getWatchers(repoId);
+		if (watchers != null)
+			watcherList = watchers;
 		
-		List<User> collab = cs.getCollaborators(repoId);
-		if (collab != null) {
-			collaboratorList = new ArrayList<Integer>();
-			for (User u : collab) {
-				collaboratorList.add(u.getId());
-			}
-		}
+		List<Integer> collab = RepositoriesGenerator.getInstance().getCollaborators(repoId);
+		if (collab != null)
+			collaboratorList = collab;
 		
-		List<Repository> forkRepos = rs.getForks(repoId);
-		if (forkRepos != null) {
-			forkList = new ArrayList<Long>();
-			for (Repository fr : forkRepos) {
-				forkList.add(fr.getId());
-			}
-		}
+		List<Integer> contrib = RepositoriesGenerator.getInstance().getContributors(repoId);
+		if (contrib != null)
+			contributorList = contrib;
 		
-		List<PullRequest> pullReqs = new ArrayList<PullRequest>();
-		List<PullRequest> openPulls = prs.getPullRequests(repoId, "open");
-		List<PullRequest> closedPulls = prs.getPullRequests(repoId, "closed");
-		if (openPulls != null)
-			pullReqs.addAll(openPulls);
-		if (closedPulls != null)
-			pullReqs.addAll(closedPulls);
-		if (!pullReqs.isEmpty()) {
-			pullRequests = new ArrayList<PullRequests>();
-			for (PullRequest pull : pullReqs) {
-				pullRequests.add(PullRequestsGenerator.getInstance().getPullRequests(repoId, pull.getNumber()));
-			}
-		}
+		List<Long> forks = RepositoriesGenerator.getInstance().getForks(repoId);
+		if (forks != null)
+			forkList = forks;
 		
-		List<Issue> issueList = new ArrayList<Issue>();
-		Map<String, String> filter = new HashMap<String, String>();
-		filter.put("state", "open");
-		List<Issue> openIssues = is.getIssues(repoId, filter);
-		filter.put("state", "closed");
-		List<Issue> closedIssues = is.getIssues(repoId, filter);
-		if (openIssues != null)
-			issueList.addAll(openIssues);
-		if (closedIssues != null)
-			issueList.addAll(closedIssues);
-		if (!issueList.isEmpty()) {
-			issues = new ArrayList<Issues>();
-			for (Issue issue : issueList) {
-				issues.add(new Issues(issue));
-			}
-		}
+		List<PullRequests> pullList = PullRequestsGenerator.getInstance().getPullRequestsFromRepo(repoId);
+		if (pullList != null)
+			pullRequests = pullList;
+		
+		List<Issues> issueList = IssuesGenerator.getInstance().getIssuesForRepo(repoId);
+		if (issueList != null)
+			issues = issueList;
 		
 		commits = CommitsGenerator.getInstance().getAllRepositoryCommits(repoId);
 	}
@@ -612,5 +568,103 @@ public class Repositories {
 	 */
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	/**
+	 * @return the watcherList
+	 */
+	public List<Integer> getWatcherList() {
+		return watcherList;
+	}
+
+	/**
+	 * @param watcherList the watcherList to set
+	 */
+	public void setWatcherList(List<Integer> watcherList) {
+		this.watcherList = watcherList;
+	}
+
+	/**
+	 * @return the collaboratorList
+	 */
+	public List<Integer> getCollaboratorList() {
+		return collaboratorList;
+	}
+
+	/**
+	 * @param collaboratorList the collaboratorList to set
+	 */
+	public void setCollaboratorList(List<Integer> collaboratorList) {
+		this.collaboratorList = collaboratorList;
+	}
+
+	/**
+	 * @return the contributorList
+	 */
+	public List<Integer> getContributorList() {
+		return contributorList;
+	}
+
+	/**
+	 * @param contributorList the contributorList to set
+	 */
+	public void setContributorList(List<Integer> contributorList) {
+		this.contributorList = contributorList;
+	}
+
+	/**
+	 * @return the forkList
+	 */
+	public List<Long> getForkList() {
+		return forkList;
+	}
+
+	/**
+	 * @param forkList the forkList to set
+	 */
+	public void setForkList(List<Long> forkList) {
+		this.forkList = forkList;
+	}
+
+	/**
+	 * @return the pullRequests
+	 */
+	public List<PullRequests> getPullRequests() {
+		return pullRequests;
+	}
+
+	/**
+	 * @param pullRequests the pullRequests to set
+	 */
+	public void setPullRequests(List<PullRequests> pullRequests) {
+		this.pullRequests = pullRequests;
+	}
+
+	/**
+	 * @return the issues
+	 */
+	public List<Issues> getIssues() {
+		return issues;
+	}
+
+	/**
+	 * @param issues the issues to set
+	 */
+	public void setIssues(List<Issues> issues) {
+		this.issues = issues;
+	}
+
+	/**
+	 * @return the commits
+	 */
+	public List<RepositoryCommits> getCommits() {
+		return commits;
+	}
+
+	/**
+	 * @param commits the commits to set
+	 */
+	public void setCommits(List<RepositoryCommits> commits) {
+		this.commits = commits;
 	}
 }

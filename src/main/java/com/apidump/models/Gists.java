@@ -15,13 +15,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Gist;
 import org.eclipse.egit.github.core.GistFile;
 import org.eclipse.egit.github.core.GistRevision;
 import org.eclipse.egit.github.core.client.RequestException;
-import org.eclipse.egit.github.core.service.GistService;
 
+import com.apidump.generator.GistsGenerator;
 import com.apidump.generator.UsersGenerator;
 
 @Entity
@@ -95,12 +94,9 @@ public class Gists {
 			user = UsersGenerator.getInstance().getUsers(g.getUser().getLogin());
 		}
 		
-		GistService gs = new GistService();
-		List<Comment> cList = gs.getComments(g.getId());
+		List<Comments> cList = GistsGenerator.getInstance().getComments(g.getId());
 		if (cList != null) {
-			commentsList = new ArrayList<Comments>();
-			for (Comment c : cList)
-				commentsList.add(new Comments(c));
+			commentsList = cList;
 		}
 	}
 	
@@ -288,5 +284,19 @@ public class Gists {
 	 */
 	public void setUser(Users user) {
 		this.user = user;
+	}
+
+	/**
+	 * @return the commentsList
+	 */
+	public List<Comments> getCommentsList() {
+		return commentsList;
+	}
+
+	/**
+	 * @param commentsList the commentsList to set
+	 */
+	public void setCommentsList(List<Comments> commentsList) {
+		this.commentsList = commentsList;
 	}
 }

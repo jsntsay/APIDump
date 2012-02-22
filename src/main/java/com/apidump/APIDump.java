@@ -110,7 +110,9 @@ public class APIDump {
 	 */
 	private static List<SearchRepository> getAllRepositories() throws IOException {
 		GitHubClient client = new GitHubClient("github.com");
-		client.setCredentials(API_USER, API_PASS);
+		if (API_USER != null && API_PASS != null)
+			client.setCredentials(API_USER, API_PASS);
+		
 		RepositoryService rsv2 = new RepositoryService(client);
 		int page = 1;
 		List<SearchRepository> repos = new ArrayList<SearchRepository>();
@@ -151,8 +153,8 @@ public class APIDump {
 		Map properties = Properties.getProperties();
 		factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME, properties);
 		EntityManager em = factory.createEntityManager();
-		
-		client.setCredentials(API_USER, API_PASS);
+		if (API_USER != null && API_PASS != null)
+			client.setCredentials(API_USER, API_PASS);
 		
 		System.out.println("Starting API Dump");
 		

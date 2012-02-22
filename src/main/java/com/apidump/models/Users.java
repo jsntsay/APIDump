@@ -118,50 +118,26 @@ public class Users {
 		
 		//System.out.println("users: " + login);
 		
-		UserService us = new UserService();
-		WatcherService ws = new WatcherService();
-		RepositoryService rs = new RepositoryService();
-		List<User> originalFollowers = us.getFollowers(login);
-		List<User> originalFollowing = us.getFollowing(login);
-		List<Repository> watchRepos = ws.getWatched(login);
-		List<Repository> repos = rs.getRepositories(login);
+		List<Integer> fList = UsersGenerator.getInstance().getFollowers(login);
+		if (fList != null)
+			followersList = fList;
 		
-		if (originalFollowers != null) {
-			followersList = new ArrayList<Integer>();
-			for (User u : originalFollowers) {
-				followersList.add(u.getId());
-			}
-		}
+		List<Integer> fList2 = UsersGenerator.getInstance().getFollowing(login);
+		if (fList2 != null)
+			followingList = fList2;
 		
-		if (originalFollowing != null) {
-			followingList = new ArrayList<Integer>();
-			for (User u : originalFollowing) {
-				followingList.add(u.getId());
-			}
-		}
+		List<Long> wList = UsersGenerator.getInstance().getWatching(login);
+		if (wList != null)
+			watchList = wList;
 		
-		if (watchRepos != null) {
-			watchList = new ArrayList<Long>();
-			for (Repository r : watchRepos) {
-				watchList.add(r.getId());
-			}
-		}
-		
-		if (repos != null) {
-			repoList = new ArrayList<Long>();
-			for (Repository r : repos) {
-				repoList.add(r.getId());
-			}
-		}
+		List<Long> rList = UsersGenerator.getInstance().getRepositories(login);
+		if (wList != null)
+			repoList = rList;
 		
 		if (type.equals(TYPE_ORGANIZATION)) {
-			OrganizationService os = new OrganizationService();
-			List<User> members = os.getMembers(login);
-			if (members != null) {
-				memberList = new ArrayList<Users>();
-				for (User u : members)
-					memberList.add(UsersGenerator.getInstance().getUsers(u.getLogin()));
-			}
+			List<Users> members = UsersGenerator.getInstance().getOrgMembers(login);
+			if (members != null)
+				memberList = members;
 		}
 	}
 	
@@ -503,5 +479,51 @@ public class Users {
 	 */
 	public void setFollowingList(List<Integer> followingList) {
 		this.followingList = followingList;
+	}
+
+	/**
+	 * @return the watchList
+	 */
+	public List<Long> getWatchList() {
+		return watchList;
+	}
+
+	/**
+	 * @param watchList the watchList to set
+	 */
+	public void setWatchList(List<Long> watchList) {
+		this.watchList = watchList;
+	}
+
+	/**
+	 * @return the repoList
+	 */
+	public List<Long> getRepoList() {
+		return repoList;
+	}
+
+	/**
+	 * @param repoList the repoList to set
+	 */
+	public void setRepoList(List<Long> repoList) {
+		this.repoList = repoList;
+	}
+
+	/**
+	 * @return the memberList
+	 */
+	public List<Users> getMemberList() {
+		return memberList;
+	}
+
+	/**
+	 * @param memberList the memberList to set
+	 */
+	public void setMemberList(List<Users> memberList) {
+		this.memberList = memberList;
+	}
+	
+	public boolean isOrganziation() {
+		return type.equals(TYPE_ORGANIZATION);
 	}
 }

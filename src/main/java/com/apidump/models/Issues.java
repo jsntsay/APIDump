@@ -15,16 +15,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.client.RequestException;
-import org.eclipse.egit.github.core.service.IssueService;
 
+import com.apidump.generator.IssuesGenerator;
 import com.apidump.generator.LabelsGenerator;
 import com.apidump.generator.PullRequestsGenerator;
 import com.apidump.generator.UsersGenerator;
-import com.apidump.util.UrlUtil;
 
 @Entity
 public class Issues {
@@ -127,12 +125,9 @@ public class Issues {
 		}
 		
 		
-		List<Comment> cList = getCommentList(i.getHtmlUrl());
+		List<Comments> cList = IssuesGenerator.getInstance().getComments(htmlUrl);
 		if (cList != null) {
-			commentsList = new ArrayList<Comments>();
-			for (Comment c : cList) {
-				commentsList.add(new Comments(c));
-			}
+			commentsList = cList;
 		}
 	}
 	
@@ -390,16 +385,5 @@ public class Issues {
 	 */
 	public void setUser(Users user) {
 		this.user = user;
-	}
-	
-	// Meant for html_url field in Issue
-	private List<Comment> getCommentList(String url) throws IOException {
-		List<String> fields = UrlUtil.parseUrl(url);
-		
-		if (fields == null)
-			return null;
-		
-		IssueService is = new IssueService();
-		return is.getComments(fields.get(0), fields.get(1), fields.get(2));
 	}
 }

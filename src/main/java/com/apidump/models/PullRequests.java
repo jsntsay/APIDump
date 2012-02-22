@@ -1,7 +1,6 @@
 package com.apidump.models;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,13 +15,12 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.eclipse.egit.github.core.CommitComment;
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.RequestException;
-import org.eclipse.egit.github.core.service.PullRequestService;
 
+import com.apidump.generator.PullRequestsGenerator;
 import com.apidump.generator.UsersGenerator;
 
 @Entity
@@ -135,14 +133,10 @@ public class PullRequests {
 			user = UsersGenerator.getInstance().getUsers(p.getUser().getLogin());
 		}
 		
-		PullRequestService prs = new PullRequestService();
 		IRepositoryIdProvider repoId = RepositoryId.createFromId(p.getBase().getRepo().generateId());
-		List<CommitComment> cList = prs.getComments(repoId, p.getNumber());
+		List<CommitComments> cList = PullRequestsGenerator.getInstance().getComments(repoId, p.getNumber());
 		if (cList != null) {
-			commentsList = new ArrayList<CommitComments>();
-			for (CommitComment c : cList) {
-				commentsList.add(new CommitComments(c));
-			}
+			commentsList = cList;
 		}
 	}
 	
@@ -498,5 +492,19 @@ public class PullRequests {
 	 */
 	public void setUser(Users user) {
 		this.user = user;
+	}
+
+	/**
+	 * @return the commentsList
+	 */
+	public List<CommitComments> getCommentsList() {
+		return commentsList;
+	}
+
+	/**
+	 * @param commentsList the commentsList to set
+	 */
+	public void setCommentsList(List<CommitComments> commentsList) {
+		this.commentsList = commentsList;
 	}
 }
