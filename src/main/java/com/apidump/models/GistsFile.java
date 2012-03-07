@@ -12,6 +12,7 @@ public class GistsFile {
 	@Id
 	private String filename;
 	
+	@Lob
 	private String rawUrl;
 	
 	private int size;

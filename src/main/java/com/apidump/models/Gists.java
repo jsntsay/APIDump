@@ -98,6 +98,8 @@ public class Gists {
 		if (cList != null) {
 			commentsList = cList;
 		}
+		
+		System.out.println("Gist: " + id);
 	}
 	
 	public Gists() {

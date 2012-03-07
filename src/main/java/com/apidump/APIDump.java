@@ -16,6 +16,7 @@ import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.SearchRepository;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.client.NoSuchPageException;
 import org.eclipse.egit.github.core.client.PageIterator;
 import org.eclipse.egit.github.core.client.RequestException;
 import org.eclipse.egit.github.core.event.Event;
@@ -24,6 +25,7 @@ import org.eclipse.egit.github.core.service.GistService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.egit.github.core.service.UserService;
 
+import com.apidump.generator.RepositoriesGenerator;
 import com.apidump.models.Repositories;
 
 //TODO: use workers to hit api/dump into db
@@ -40,15 +42,15 @@ import com.apidump.models.Repositories;
 public class APIDump {
 	private static final String PERSISTENCE_UNIT_NAME = "apidump";
 	private static EntityManagerFactory factory;
-	
+
 	private static final String API_USER = System.getenv("APIUSER");
 	private static final String API_PASS = System.getenv("APIPASS");
 	private static GitHubClient client = new GitHubClient();
-	
+
 	public static GitHubClient getClient() {
 		return client;
 	}
-	
+
 	// Generate an event list from API.
 	private static List<Event> populateEventList() throws IOException {
 		List<Event> eventList = new ArrayList<Event>();
@@ -88,27 +90,7 @@ public class APIDump {
 		return userList;
 	}
 	
-	private static List<Repository> populateRepositoryList() throws IOException {
-		List<Repository> repoList = new ArrayList<Repository>();
-		RepositoryService rs = new RepositoryService(client);
-		repoList.add(rs.getRepository("mootools", "mootools-core"));
-		//repoList.add(rs.getRepository("octocat", "hello-world"));
-		return repoList;
-	}
-	
-	private static List<Comment> getGistCommentList(Gist g) throws IOException {
-		List<Comment> commentList = new ArrayList<Comment>();
-		GistService gs = new GistService(client);
-		commentList.addAll(gs.getComments(g.getId()));
-		return commentList;
-	}
-	
-	/**
-	 * Uses v2 API to get all repositories
-	 * @return list of SearchRepository
-	 * @throws IOException
-	 */
-	private static List<SearchRepository> getAllRepositories() throws IOException {
+	private static List<SearchRepository> populateRepositoryList() throws IOException {
 		GitHubClient client = new GitHubClient("github.com");
 		if (API_USER != null && API_PASS != null)
 			client.setCredentials(API_USER, API_PASS);
@@ -118,7 +100,7 @@ public class APIDump {
 		List<SearchRepository> repos = new ArrayList<SearchRepository>();
 		while (true)
 		{
-			List<SearchRepository> results = rsv2.searchRepositories("created:[NOW-100YEARS TO NOW]", page);
+			List<SearchRepository> results = rsv2.searchRepositories("created:[NOW-1MONTH TO NOW]", page);
 			if (results.size() == 0)
 				break;
 			repos.addAll(results);
@@ -132,18 +114,77 @@ public class APIDump {
 		return repos;
 	}
 	
+	private static List<Comment> getGistCommentList(Gist g) throws IOException {
+		List<Comment> commentList = new ArrayList<Comment>();
+		GistService gs = new GistService(client);
+		commentList.addAll(gs.getComments(g.getId()));
+		return commentList;
+	}
+	
+	/**
+	 * Uses v2 API to get all repositories
+	 * Returned SearchRepository does not include all info about a repository
+	 * Use RepositoriesGenerator to generate full Repositories model
+	 * @return list of SearchRepository
+	 * @throws IOException
+	 */
+	private static List<SearchRepository> getAllRepositories() throws IOException {
+		GitHubClient client = new GitHubClient("github.com");
+		if (API_USER != null && API_PASS != null)
+			client.setCredentials(API_USER, API_PASS);
+		
+		RepositoryService rsv2 = new RepositoryService(client);
+		int page = 1;
+		List<SearchRepository> repos = new ArrayList<SearchRepository>();
+		while (true)
+		{
+			List<SearchRepository> results = rsv2.searchRepositories("fork:true", page);
+			if (results.size() == 0)
+				break;
+			repos.addAll(results);
+			System.out.println("true page: " + page + " added");
+			page++;
+		}
+		// Heap died a painful death, split this up
+		page = 1;
+		while (true)
+		{
+			List<SearchRepository> results = rsv2.searchRepositories("fork:false", page);
+			if (results.size() == 0)
+				break;
+			repos.addAll(results);
+			System.out.println("false page: " + page + " added");
+			page++;
+		}
+		for (SearchRepository s : repos) {
+			System.out.println(s.generateId());
+		}
+		System.out.println("size: " + repos.size());
+		return repos;
+	}
+	
+	/**
+	 * Uses APIv3 to get list of all Gists
+	 * List returned does not include all Gist information
+	 * Use GistsGenerator to generate complete Gists model
+	 * @return list of Gist
+	 */
 	private static List<Gist> getAllGists() {
 		GistService gs = new GistService(client);
 		PageIterator<Gist> gists = gs.pagePublicGists(1, 100);
 		List<Gist> gistList = new ArrayList<Gist>();
 		int page = 1;
 		int count = 0;
-		while (gists.hasNext()) {
-			Collection<Gist> gistPage = gists.next();
-			gistList.addAll(gistPage);
-			System.out.println("page: " + page++);
-			count += gistPage.size();
-			System.out.println("current size: " + count);
+		try {
+			while (gists.hasNext()) {
+				Collection<Gist> gistPage = gists.next();
+				gistList.addAll(gistPage);
+				System.out.println("page: " + page++);
+				count += gistPage.size();
+				System.out.println("current size: " + count);
+			}
+		} catch (NoSuchPageException e) {
+			e.printStackTrace();
 		}
 		return gistList;
 	}
@@ -161,21 +202,24 @@ public class APIDump {
 		// Extract user model classes from API
 		//List<Event> eventList = populateEventList();
 		//List<Gist> gistList = populateGistList();
+		//List<Gist> gistList = getAllGists();
+		//List<SearchRepository> repoList = getAllRepositories();
 		//List<User> userList = populateUserList();
-		List<Repository> repoList = populateRepositoryList();
+		List<SearchRepository> repoList = populateRepositoryList();
 
 		//for (Event e : eventList)
 		//for (Gist g : gistList)
 		//for (User u : userList)
-		for (Repository r : repoList)
+		for (SearchRepository r : repoList)
 		{
 			
 			try {
 				em.getTransaction().begin();
 				//Events ev = new Events(e);
-				//Gists gi = new Gists(g);
+				//Gists gi = GistsGenerator.getInstance().getGists(g.getId());
 				//Users us = new Users(u);
-				Repositories re = new Repositories(r);
+				//Repositories re = new Repositories(r);
+				Repositories re = RepositoriesGenerator.getInstance().getRepositories(r.getOwner(), r.getName());
 				
 				//em.merge(ev);
 				//em.merge(gi);
@@ -186,9 +230,14 @@ public class APIDump {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 				if (e1.getStatus() == 404) {
+					System.out.println("404 error!");
 					// continue;
 				} else if (e1.getStatus() == 403) {
+					System.out.println("403 error!");
 					// need to delay and retry or something
+				} else if (e1.getStatus() == 410) {
+					System.out.println("410 error!");
+					// treat this like 404
 				}
 			} finally {
 			
